@@ -10,6 +10,8 @@ export interface SavedState {
   lastFirst: { date: string; name: string } | null
   lastGame: string | null
   pace: Pace
+  /** Ids des jeux marqués favoris, affichés dans leur propre famille. */
+  favorites: string[]
 }
 
 const KEY = 'daily-games-v1'
@@ -27,6 +29,7 @@ export function loadState(): SavedState {
     lastFirst: null,
     lastGame: null,
     pace: { ...DEFAULT_PACE },
+    favorites: [],
   }
   try {
     const raw = localStorage.getItem(KEY)

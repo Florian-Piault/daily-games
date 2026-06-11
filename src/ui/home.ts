@@ -93,24 +93,36 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
 
   function renderGames() {
     const ok = presentNames().length >= 2
-    gamesGrid.innerHTML = FAMILIES.map(
-      (f) => `
+    const isFav = (g: GameDef) => saved.favorites.includes(g.id)
+    const gameCard = (g: GameDef) => `
+          <div class="game-card-wrap">
+            <button class="game-card" data-id="${g.id}" ${ok ? '' : 'disabled'}>
+              <span class="game-emoji">${g.emoji}</span>
+              <span class="game-name">${g.name}</span>
+              <span class="game-tag">${g.tagline}</span>
+            </button>
+            <button class="fav-btn ${isFav(g) ? 'active' : ''}" data-id="${g.id}"
+              title="${isFav(g) ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${isFav(g) ? '★' : '☆'}</button>
+          </div>`
+    const sections: { label: string; games: GameDef[] }[] = [
+      { label: '⭐ Favoris', games: GAMES.filter(isFav) },
+      ...FAMILIES.map((f) => ({
+        label: f.label,
+        games: GAMES.filter((g) => g.family === f.key && !isFav(g)),
+      })),
+    ]
+    gamesGrid.innerHTML = sections
+      .filter((s) => s.games.length)
+      .map(
+        (s) => `
       <section class="games-section">
-        <h3>${f.label}</h3>
+        <h3>${s.label}</h3>
         <div class="games-grid">
-          ${GAMES.filter((g) => g.family === f.key)
-            .map(
-              (g) => `
-          <button class="game-card" data-id="${g.id}" ${ok ? '' : 'disabled'}>
-            <span class="game-emoji">${g.emoji}</span>
-            <span class="game-name">${g.name}</span>
-            <span class="game-tag">${g.tagline}</span>
-          </button>`,
-            )
-            .join('')}
+          ${s.games.map(gameCard).join('')}
         </div>
       </section>`,
-    ).join('')
+      )
+      .join('')
     launchHint.textContent = ok
       ? 'Choisis un jeu pour lancer le tirage. Les données restent dans ton navigateur.'
       : 'Il faut au moins 2 personnes présentes pour lancer un tirage.'
@@ -118,6 +130,16 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
       btn.addEventListener('click', () => {
         const game = GAMES.find((g) => g.id === btn.dataset.id)!
         opts.onLaunch(game, presentNames(), saved.mode)
+      })
+    })
+    gamesGrid.querySelectorAll<HTMLButtonElement>('.fav-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id!
+        saved.favorites = saved.favorites.includes(id)
+          ? saved.favorites.filter((x) => x !== id)
+          : [...saved.favorites, id]
+        saveState(saved)
+        renderGames()
       })
     })
   }

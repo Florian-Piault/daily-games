@@ -223,7 +223,36 @@ body {
   gap: 14px;
 }
 
+.game-card-wrap {
+  position: relative;
+  display: flex;
+}
+
+.fav-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 5px;
+  color: #64748b;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.fav-btn:hover {
+  color: #fbbf24;
+  transform: scale(1.2);
+}
+
+.fav-btn.active {
+  color: #fbbf24;
+}
+
 .game-card {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
