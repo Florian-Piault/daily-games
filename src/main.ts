@@ -1,15 +1,18 @@
 import './style.css'
 import type { DrawMode, GameDef, Participant } from './types'
-import { loadState, saveState, todayKey } from './state'
+import { loadState, recordDraw, recordSpeakTime, saveState, todayKey } from './state'
 import { Sfx } from './audio'
 import { avatarFor, colorFor, initAvatarVariants } from './avatars'
 import { computeOrder } from './draw'
 import { renderHome } from './ui/home'
+import { renderJournal } from './ui/journal'
 import { renderOrderResult, renderSingleResult } from './ui/result'
+import { applyTheme } from './ui/settings'
 
 const app = document.getElementById('app')!
 const saved = loadState()
 initAvatarVariants(saved.avatarSeed)
+applyTheme(saved.theme)
 const sfx = new Sfx(saved.muted)
 
 let cleanupGame: (() => void) | null = null
@@ -37,7 +40,12 @@ async function toParticipants(names: string[]): Promise<Participant[]> {
 function showHome(): void {
   stopGame()
   singleRun = null
-  renderHome(app, { saved, onLaunch, setMuted })
+  renderHome(app, { saved, onLaunch, setMuted, onJournal: showJournal })
+}
+
+function showJournal(): void {
+  stopGame()
+  renderJournal(app, { saved, onHome: showHome })
 }
 
 function forbiddenFirstFor(present: string[]): string | null {
@@ -101,8 +109,12 @@ function onGameFinish(game: GameDef, names: string[], mode: DrawMode, finalOrder
   // anti-répétition : on mémorise le « premier » du jour (pas les tirages suivants du mode une-personne)
   if (mode === 'order' || singleRun!.drawn.length === 0) recordFirst(finalOrder[0].name)
   if (mode === 'order') {
+    recordDraw(saved, game.id, finalOrder.map((p) => p.name))
     renderOrderResult(app, {
       order: finalOrder,
+      timeboxSec: saved.timeboxSec,
+      onTimeUp: () => sfx.timeUp(),
+      onSpeakTime: (name, sec) => recordSpeakTime(saved, name, sec),
       onReplay: () => void runGame(game, names, 'order'),
       onHome: showHome,
     })
@@ -115,9 +127,13 @@ function onGameFinish(game: GameDef, names: string[], mode: DrawMode, finalOrder
 function showSingleResult(): void {
   const run = singleRun!
   const remaining = run.present.filter((n) => !run.drawn.some((d) => d.name === n))
+  recordDraw(saved, run.game.id, run.drawn.map((p) => p.name))
   renderSingleResult(app, {
     drawn: run.drawn,
     remaining: remaining.length,
+    timeboxSec: saved.timeboxSec,
+    onTimeUp: () => sfx.timeUp(),
+    onSpeakTime: (name, sec) => recordSpeakTime(saved, name, sec),
     onNext: async () => {
       if (remaining.length === 1) {
         // plus de suspense nécessaire : la dernière personne passe d'office

@@ -69,6 +69,11 @@ export class Sfx {
     this.noise(0.3, 0.25)
   }
 
+  timeUp(): void {
+    this.tone(660, 0.15, { type: 'triangle', vol: 0.18 })
+    this.tone(520, 0.3, { type: 'triangle', vol: 0.18, when: 0.18 })
+  }
+
   fanfare(): void {
     const notes = [523.25, 659.25, 783.99, 1046.5]
     notes.forEach((f, i) => this.tone(f, 0.18, { type: 'triangle', vol: 0.22, when: i * 0.13 }))

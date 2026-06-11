@@ -4,21 +4,22 @@ import { funEmoji } from '@dicebear/collection'
 const uriCache = new Map<string, string>()
 const imgCache = new Map<string, HTMLImageElement>()
 
-/** Variantes d'avatar par membre (référence partagée avec l'état sauvegardé). */
-let variants: Record<string, number> = {}
+/** Seeds d'avatar par membre (référence partagée avec l'état sauvegardé). */
+let variants: Record<string, string> = {}
 
-export function initAvatarVariants(v: Record<string, number>): void {
+export function initAvatarVariants(v: Record<string, string>): void {
   variants = v
 }
 
 /** Génère une nouvelle variante d'avatar ; l'appelant persiste l'état. */
 export function rerollAvatar(name: string): void {
-  variants[name] = (variants[name] ?? 0) + 1
+  const cur = variants[name] ?? name
+  const m = cur.match(/#(\d+)$/)
+  variants[name] = `${name}#${(m ? Number(m[1]) : 0) + 1}`
 }
 
 function seedFor(name: string): string {
-  const n = variants[name] ?? 0
-  return n ? `${name}#${n}` : name
+  return variants[name] ?? name
 }
 
 export function avatarUri(name: string): string {

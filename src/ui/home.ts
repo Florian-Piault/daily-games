@@ -9,6 +9,7 @@ export interface HomeOpts {
   saved: SavedState
   onLaunch: (game: GameDef, present: string[], mode: DrawMode) => void
   setMuted: (m: boolean) => void
+  onJournal: () => void
 }
 
 export function renderHome(app: HTMLElement, opts: HomeOpts): void {
@@ -19,7 +20,8 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
     <header class="topbar">
       <h1>🎲 Daily Games</h1>
       <div class="topbar-btns">
-        <button class="btn icon" id="settings" title="Réglages de rythme">⚙️</button>
+        <button class="btn icon" id="journal" title="Journal du daily">📖</button>
+        <button class="btn icon" id="settings" title="Réglages">⚙️</button>
         <button class="btn icon" id="mute" title="Son">${saved.muted ? '🔇' : '🔊'}</button>
       </div>
     </header>
@@ -52,6 +54,21 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
 
   const presentNames = () => saved.members.filter((m) => saved.present[m] !== false)
 
+  function renameMember(old: string, neu: string) {
+    saved.members = saved.members.map((m) => (m === old ? neu : m))
+    saved.present[neu] = saved.present[old] !== false
+    delete saved.present[old]
+    // l'ancien nom reste le seed : l'avatar ne change pas
+    saved.avatarSeed[neu] = saved.avatarSeed[old] ?? old
+    delete saved.avatarSeed[old]
+    if (saved.lastFirst?.name === old) saved.lastFirst.name = neu
+    saved.history.forEach((h) => {
+      h.order = h.order.map((n) => (n === old ? neu : n))
+    })
+    saveState(saved)
+    renderTeam()
+  }
+
   function renderTeam() {
     if (!saved.members.length) {
       teamList.innerHTML = '<li class="empty">Ajoute les membres de ton équipe 👇</li>'
@@ -65,6 +82,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
             <img class="avatar reroll" src="${avatarUri(m)}" alt="" title="Changer d'avatar" />
             <span>${escapeHtml(m)}</span>
           </label>
+          <button class="edit" title="Renommer">✏️</button>
           <button class="remove" title="Retirer de l'équipe">✕</button>
         </li>`,
         )
@@ -86,6 +104,27 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
         rerollAvatar(name)
         saveState(saved)
         renderTeam()
+      })
+      row.querySelector('.edit')!.addEventListener('click', () => {
+        row.innerHTML = `
+          <img class="avatar" src="${avatarUri(name)}" alt="" />
+          <form class="rename-form">
+            <input type="text" value="${escapeHtml(name)}" maxlength="24" autocomplete="off" />
+            <button class="btn" type="submit">OK</button>
+          </form>`
+        const input = row.querySelector('input')!
+        input.focus()
+        input.select()
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') renderTeam()
+        })
+        row.querySelector('form')!.addEventListener('submit', (e) => {
+          e.preventDefault()
+          const neu = input.value.trim()
+          if (!neu || neu === name) return renderTeam()
+          if (saved.members.includes(neu)) return input.select()
+          renameMember(name, neu)
+        })
       })
       row.querySelector('.remove')!.addEventListener('click', () => {
         saved.members = saved.members.filter((x) => x !== name)
@@ -172,6 +211,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
   })
 
   app.querySelector('#settings')!.addEventListener('click', () => openSettings(saved))
+  app.querySelector('#journal')!.addEventListener('click', opts.onJournal)
 
   const form = app.querySelector<HTMLFormElement>('#add-form')!
   const input = app.querySelector<HTMLInputElement>('#add-input')!
