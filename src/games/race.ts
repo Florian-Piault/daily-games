@@ -17,6 +17,7 @@ export const race: GameDef = {
   name: 'La Grande Course',
   emoji: '🏁',
   tagline: "L'ordre d'arrivée fait l'ordre de passage",
+  family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
     const { sfx, mode } = ctx

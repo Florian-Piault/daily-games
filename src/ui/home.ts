@@ -1,5 +1,5 @@
 import { avatarUri } from '../avatars'
-import { GAMES } from '../games'
+import { FAMILIES, GAMES } from '../games'
 import { saveState, type SavedState } from '../state'
 import type { DrawMode, GameDef } from '../types'
 import { escapeHtml } from './esc'
@@ -35,7 +35,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
           <button type="button" data-mode="order" class="seg-btn">📋 Ordre complet</button>
           <button type="button" data-mode="single" class="seg-btn">🎯 Une personne</button>
         </div>
-        <div class="games-grid" id="games"></div>
+        <div id="games"></div>
         <p class="hint" id="launch-hint">Choisis un jeu pour lancer le tirage. Les données restent dans ton navigateur.</p>
       </section>
     </main>
@@ -89,13 +89,23 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
 
   function renderGames() {
     const ok = presentNames().length >= 2
-    gamesGrid.innerHTML = GAMES.map(
-      (g) => `
-      <button class="game-card" data-id="${g.id}" ${ok ? '' : 'disabled'}>
-        <span class="game-emoji">${g.emoji}</span>
-        <span class="game-name">${g.name}</span>
-        <span class="game-tag">${g.tagline}</span>
-      </button>`,
+    gamesGrid.innerHTML = FAMILIES.map(
+      (f) => `
+      <section class="games-section">
+        <h3>${f.label}</h3>
+        <div class="games-grid">
+          ${GAMES.filter((g) => g.family === f.key)
+            .map(
+              (g) => `
+          <button class="game-card" data-id="${g.id}" ${ok ? '' : 'disabled'}>
+            <span class="game-emoji">${g.emoji}</span>
+            <span class="game-name">${g.name}</span>
+            <span class="game-tag">${g.tagline}</span>
+          </button>`,
+            )
+            .join('')}
+        </div>
+      </section>`,
     ).join('')
     launchHint.textContent = ok
       ? 'Choisis un jeu pour lancer le tirage. Les données restent dans ton navigateur.'

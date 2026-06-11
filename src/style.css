@@ -205,6 +205,18 @@ body {
   color: #fff;
 }
 
+.games-section + .games-section {
+  margin-top: 22px;
+}
+
+.games-section h3 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
 .games-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));

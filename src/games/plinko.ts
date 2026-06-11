@@ -25,6 +25,7 @@ export const plinko: GameDef = {
   name: 'Plinko',
   emoji: '🪙',
   tagline: 'Que la gravité décide',
+  family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
     const { sfx, mode } = ctx

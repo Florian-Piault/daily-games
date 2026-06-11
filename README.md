@@ -1,11 +1,24 @@
 # 🎲 Daily Games
 
-Mini-jeux de tirage au sort pour le Daily Scrum, à partager en visio. Quatre jeux « spectacle » de 10–30 secondes déterminent l'ordre de passage de l'équipe (ou tirent une personne au sort) :
+Mini-jeux de tirage au sort pour le Daily Scrum, à partager en visio. Douze jeux « spectacle » de 10–30 secondes déterminent l'ordre de passage de l'équipe (ou tirent une personne au sort).
+
+**Trajectoires & classement**
 
 - 🏁 **La Grande Course** — l'ordre d'arrivée fait l'ordre de passage
-- 🎰 **Machine à sous** — le rouleau décide
 - 🪙 **Plinko** — que la gravité décide (physique Matter.js)
+- 🪜 **Échelles japonaises** — chaque chemin mène à un rang
+- 🪂 **Largage aérien** — l'ordre d'atterrissage décide
+- 🎪 **Canon de cirque** — le plus long vol parle en premier
+- 🎡 **Roue de la fortune** — la classique, en mieux
+
+**Suspense & élimination**
+
+- 🎰 **Machine à sous** — le rouleau décide
 - ⚔️ **Battle Royale** — le dernier debout est tiré au sort
+- 🥔 **Patate chaude** — ça va exploser… mais sur qui ?
+- 🃏 **Cartes mystère** — retournées une à une, la dernière gagne
+- 🕹️ **Pince à peluches** — la pince choisit sa peluche
+- 🪑 **Chaises musicales** — la musique s'arrête… qui reste debout ?
 
 ## Fonctionnalités
 

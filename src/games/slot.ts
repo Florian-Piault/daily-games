@@ -25,6 +25,7 @@ export const slot: GameDef = {
   name: 'Machine à sous',
   emoji: '🎰',
   tagline: 'Le rouleau décide',
+  family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
     const { sfx, mode } = ctx

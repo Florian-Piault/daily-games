@@ -29,6 +29,7 @@ export const battle: GameDef = {
   name: 'Battle Royale',
   emoji: '⚔️',
   tagline: 'Le dernier debout est tiré au sort',
+  family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
     const { sfx, mode } = ctx

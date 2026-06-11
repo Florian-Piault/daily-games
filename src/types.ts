@@ -24,6 +24,8 @@ export interface GameDef {
   name: string
   emoji: string
   tagline: string
+  /** Famille pour le regroupement sur l'accueil. */
+  family: 'rank' | 'elim'
   /** Lance le jeu, retourne une fonction de nettoyage. */
   run(ctx: GameContext): () => void
 }
