@@ -32,9 +32,11 @@ export const battle: GameDef = {
   family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
+    const intro = INTRO * pace.intro
+    const interval = INTERVAL * pace.round
 
     const fighters: Fighter[] = ctx.participants.map((p) => ({
       p,
@@ -85,7 +87,7 @@ export const battle: GameDef = {
       c.restore()
 
       // éliminations programmées
-      const due = t > INTRO ? Math.min(n - 1, Math.floor((t - INTRO) / INTERVAL)) : 0
+      const due = t > intro ? Math.min(n - 1, Math.floor((t - intro) / interval)) : 0
       if (eliminated < due && !done) {
         const victim = fighters.find((f) => f.p === ctx.order[n - 1 - eliminated])!
         victim.alive = false
@@ -107,7 +109,7 @@ export const battle: GameDef = {
       // déplacement des survivants
       fighters.forEach((f) => {
         if (!f.alive) return
-        if (t > INTRO * 0.5) {
+        if (t > intro * 0.5) {
           f.ang += (Math.random() - 0.5) * 3 * dt
           f.x += Math.cos(f.ang) * f.speed * dt
           f.y += Math.sin(f.ang) * f.speed * dt
@@ -161,7 +163,7 @@ export const battle: GameDef = {
         sfx.fanfare()
         const winner = fighters.find((f) => f.alive)!
         confetti.burst(winner.x, winner.y, 140)
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 2000)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 2000 * pace.result)
       }
       if (done) {
         const winner = fighters.find((f) => f.alive)!

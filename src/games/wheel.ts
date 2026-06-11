@@ -19,7 +19,7 @@ export const wheel: GameDef = {
   family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
     const rounds = mode === 'single' ? 1 : n
@@ -47,7 +47,7 @@ export const wheel: GameDef = {
         from: rot,
         to,
         t: 0,
-        dur: results.length === 0 ? 4.2 : Math.max(1.6, 3.4 - results.length * 0.4),
+        dur: (results.length === 0 ? 4.2 : Math.max(1.6, 3.4 - results.length * 0.4)) * pace.round,
         landed: false,
         pause: 0,
       }
@@ -84,7 +84,7 @@ export const wheel: GameDef = {
           }
         } else {
           spin.pause += dt
-          if (spin.pause > 1.1) {
+          if (spin.pause > 1.1 * pace.round) {
             const target = ctx.order[results.length]
             results.push(target)
             const after = remaining.filter((p) => p !== target)
@@ -93,7 +93,7 @@ export const wheel: GameDef = {
               if (after.length === 1 && mode === 'order') results.push(after[0])
               done = true
               sfx.fanfare()
-              timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800)
+              timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
             } else {
               remaining = after
               startSpin()

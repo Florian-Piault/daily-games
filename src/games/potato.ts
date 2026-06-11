@@ -27,9 +27,10 @@ export const potato: GameDef = {
   family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
+    const intro = INTRO * pace.intro
 
     const players: Player[] = ctx.participants.map((p) => ({
       p,
@@ -53,8 +54,8 @@ export const potato: GameDef = {
     function buildRound() {
       const victim = players.findIndex((pl) => pl.p === ctx.order[n - 1 - eliminated])
       const alive = players.map((pl, i) => (pl.alive ? i : -1)).filter((i) => i >= 0)
-      const dur = Math.max(1.4, 3 - eliminated * 0.25)
-      const hop = Math.max(0.18, 0.32 - eliminated * 0.015)
+      const dur = Math.max(1.4, 3 - eliminated * 0.25) * pace.round
+      const hop = Math.max(0.18, 0.32 - eliminated * 0.015) * pace.round
       const hops = Math.max(3, Math.round(dur / hop))
       path = []
       let cur = holder
@@ -76,7 +77,7 @@ export const potato: GameDef = {
       phaseT = 0
     }
 
-    const hopDur = () => Math.max(0.16, 0.3 - eliminated * 0.015)
+    const hopDur = () => Math.max(0.16, 0.3 - eliminated * 0.015) * pace.round
 
     const stop = loop((dt, t) => {
       const { ctx: c, w, h } = view
@@ -92,7 +93,7 @@ export const potato: GameDef = {
         y: cy + Math.sin((i / n) * Math.PI * 2 - Math.PI / 2) * R,
       })
 
-      if (phase === 'intro' && t > INTRO) buildRound()
+      if (phase === 'intro' && t > intro) buildRound()
 
       // bombe : position courante
       let bx = pos(holder).x
@@ -135,7 +136,7 @@ export const potato: GameDef = {
         }
       } else if (phase === 'explode') {
         phaseT += dt
-        if (phaseT > 0.9) {
+        if (phaseT > 0.9 * pace.round) {
           if (eliminated >= n - 1) {
             phase = 'win'
           } else {
@@ -219,7 +220,7 @@ export const potato: GameDef = {
         const winner = players.find((pl) => pl.alive)!
         const wp = pos(players.indexOf(winner))
         confetti.burst(wp.x, wp.y, 140)
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 2000)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 2000 * pace.result)
       }
       if (done) {
         const winner = players.find((pl) => pl.alive)!

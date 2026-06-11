@@ -32,7 +32,7 @@ export const chairs: GameDef = {
   family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
 
@@ -59,7 +59,7 @@ export const chairs: GameDef = {
 
     const chairCount = () => n - eliminated - 1
     const chairAng = (j: number) => chairOffset + (j / Math.max(1, chairCount())) * Math.PI * 2
-    const spinDur = () => Math.max(1.2, (n > 8 ? 2.2 : 3) - eliminated * 0.3)
+    const spinDur = () => Math.max(1.2, (n > 8 ? 2.2 : 3) - eliminated * 0.3) * pace.round
 
     function startDive() {
       const victim = players.find((pl) => pl.p === ctx.order[n - 1 - eliminated])!
@@ -118,7 +118,7 @@ export const chairs: GameDef = {
         }
         if (phaseT > spinDur()) startDive()
       } else if (phase === 'dive') {
-        const u = clamp01(phaseT / 0.55)
+        const u = clamp01(phaseT / (0.55 * pace.round))
         const e = u * u * (3 - 2 * u)
         players.forEach((pl) => {
           if (!pl.alive) return
@@ -140,7 +140,7 @@ export const chairs: GameDef = {
         // la victime glisse hors du cercle
         const victim = players.find((pl) => !pl.alive && pl.radF < 1.3)
         if (victim) victim.radF = Math.min(1.3, victim.radF + dt * 0.4)
-        if (phaseT > 1.3) {
+        if (phaseT > 1.3 * pace.round) {
           if (players.filter((pl) => pl.alive).length === 1) {
             phase = 'win'
           } else {
@@ -158,7 +158,7 @@ export const chairs: GameDef = {
           }
         }
       } else if (phase === 'reset') {
-        const u = clamp01(phaseT / 0.5)
+        const u = clamp01(phaseT / (0.5 * pace.round))
         players.forEach((pl) => {
           if (!pl.alive) return
           pl.radF = pl.fromRadF + (pl.toRadF - pl.fromRadF) * u
@@ -197,7 +197,7 @@ export const chairs: GameDef = {
         const winner = players.find((pl) => pl.alive)!
         const wp = pos(winner.ang, winner.radF)
         confetti.burst(wp.x, wp.y, 140)
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 2000)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 2000 * pace.result)
       }
       if (done) {
         const winner = players.find((pl) => pl.alive)!

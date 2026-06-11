@@ -28,7 +28,7 @@ export const slot: GameDef = {
   family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const rounds = mode === 'single' ? 1 : ctx.order.length
     const results: Participant[] = []
     const confetti = new Confetti()
@@ -47,7 +47,7 @@ export const slot: GameDef = {
         strip,
         to: loops * strip.length + idx,
         t: 0,
-        dur: results.length === 0 ? 4.2 : Math.max(1.8, 3.6 - results.length * 0.45),
+        dur: (results.length === 0 ? 4.2 : Math.max(1.8, 3.6 - results.length * 0.45)) * pace.round,
         landed: false,
         pause: 0,
       }
@@ -86,13 +86,13 @@ export const slot: GameDef = {
           pos = spin.to
           if (!done) {
             spin.pause += dt
-            if (spin.pause > 1) {
+            if (spin.pause > pace.round) {
               results.push(ctx.order[results.length])
               if (results.length >= rounds) {
                 done = true
                 sfx.fanfare()
                 confetti.burst(areaW / 2, my, 130)
-                timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800)
+                timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
               } else {
                 startSpin()
               }

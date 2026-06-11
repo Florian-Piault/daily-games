@@ -24,13 +24,14 @@ export const airdrop: GameDef = {
   family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
+    const planeDur = PLANE_DUR * pace.intro
 
     // temps d'atterrissage absolus, strictement croissants par rang (jitter < écart minimal)
-    const tFirst = 5
-    const tLast = Math.min(12, tFirst + Math.max(1.6, n * 0.6))
+    const tFirst = 5 * pace.continuous
+    const tLast = Math.min(12, 5 + Math.max(1.6, n * 0.6)) * pace.continuous
     const slots = shuffle(ctx.order.map((_, i) => i))
     const jumpers: Jumper[] = ctx.participants.map((p) => {
       const rank = ctx.order.indexOf(p)
@@ -40,7 +41,7 @@ export const airdrop: GameDef = {
         rank,
         fx: n === 1 ? 0.5 : 0.1 + (slots[rank] / (n - 1)) * 0.8,
         dropAt: null,
-        landAt: tFirst + u * (tLast - tFirst) + (rank > 0 ? Math.random() * 0.15 : 0),
+        landAt: tFirst + u * (tLast - tFirst) + (rank > 0 ? Math.random() * 0.15 * pace.continuous : 0),
         phase: Math.random() * Math.PI * 2,
         freq: 1.4 + Math.random() * 1.2,
         landed: false,
@@ -73,8 +74,8 @@ export const airdrop: GameDef = {
       c.restore()
 
       // avion qui traverse en larguant
-      const planeX = -70 + (areaW + 180) * Math.min(1, t / PLANE_DUR)
-      if (t < PLANE_DUR + 0.6) {
+      const planeX = -70 + (areaW + 180) * Math.min(1, t / planeDur)
+      if (t < planeDur + 0.6) {
         drawName(c, '✈️', planeX, skyTop, 34)
       }
       jumpers.forEach((j) => {
@@ -134,7 +135,7 @@ export const airdrop: GameDef = {
       if (over && !done) {
         done = true
         sfx.fanfare()
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1600)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1600 * pace.result)
       }
       if (done) {
         const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'

@@ -3,6 +3,7 @@ import { FAMILIES, GAMES } from '../games'
 import { saveState, type SavedState } from '../state'
 import type { DrawMode, GameDef } from '../types'
 import { escapeHtml } from './esc'
+import { openSettings } from './settings'
 
 export interface HomeOpts {
   saved: SavedState
@@ -17,7 +18,10 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
   <div class="screen home">
     <header class="topbar">
       <h1>🎲 Daily Games</h1>
-      <button class="btn icon" id="mute" title="Son">${saved.muted ? '🔇' : '🔊'}</button>
+      <div class="topbar-btns">
+        <button class="btn icon" id="settings" title="Réglages de rythme">⚙️</button>
+        <button class="btn icon" id="mute" title="Son">${saved.muted ? '🔇' : '🔊'}</button>
+      </div>
     </header>
     <main class="home-grid">
       <section class="card team-card">
@@ -137,6 +141,8 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
     opts.setMuted(!saved.muted)
     muteBtn.textContent = saved.muted ? '🔇' : '🔊'
   })
+
+  app.querySelector('#settings')!.addEventListener('click', () => openSettings(saved))
 
   const form = app.querySelector<HTMLFormElement>('#add-form')!
   const input = app.querySelector<HTMLInputElement>('#add-input')!

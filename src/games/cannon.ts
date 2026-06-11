@@ -23,7 +23,7 @@ export const cannon: GameDef = {
   family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
 
@@ -37,8 +37,8 @@ export const cannon: GameDef = {
         p,
         rank,
         fd: 0.97 - u * 0.72 + (rank > 0 ? (Math.random() - 0.5) * gap * 0.45 : 0),
-        fireAt: INTRO + i * Math.max(0.95, 1.5 - i * 0.05),
-        flight: 1.5,
+        fireAt: INTRO * pace.intro + i * Math.max(0.95, 1.5 - i * 0.05) * pace.continuous,
+        flight: 1.5 * pace.continuous,
         spin: 3 + Math.random() * 3,
         landed: false,
       }
@@ -161,7 +161,7 @@ export const cannon: GameDef = {
       if (landedCount >= n && !done) {
         done = true
         sfx.fanfare()
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
       }
       if (done) {
         const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'

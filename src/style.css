@@ -276,6 +276,81 @@ body {
   list-style: none;
 }
 
+.topbar-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Modale réglages ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+}
+
+.modal {
+  background: #16203a;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 16px;
+  padding: 20px;
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.modal-head h2 {
+  font-size: 1.05rem;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.setting-row .seg {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.setting-label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.setting-label .hint {
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.modal-foot .hint {
+  margin-top: 0;
+}
+
 /* ---------- Jeu ---------- */
 
 .game-screen .game-stage {

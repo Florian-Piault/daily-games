@@ -46,7 +46,7 @@ export const ladder: GameDef = {
   family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
 
@@ -70,7 +70,7 @@ export const ladder: GameDef = {
     let done = false
     let timer: number | undefined
 
-    const traceDur = (i: number) => (mode === 'single' ? 4.5 : Math.max(1.1, 2.6 * Math.pow(0.88, i)))
+    const traceDur = (i: number) => (mode === 'single' ? 4.5 : Math.max(1.1, 2.6 * Math.pow(0.88, i))) * pace.round
 
     const stop = loop((dt) => {
       const { ctx: c, w, h } = view
@@ -212,12 +212,12 @@ export const ladder: GameDef = {
             if (rank === 0) confetti.burst(mode === 'single' ? X(tc) : X(0), mode === 'single' ? yTop - ar : yBot, 110)
             traceIdx++
             traceT = 0
-            pause = 0.35
+            pause = 0.35 * pace.round
             lastSeg = -1
             if (traceIdx >= traceCols.length) {
               done = true
               sfx.fanfare()
-              timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800)
+              timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
             }
           }
         }

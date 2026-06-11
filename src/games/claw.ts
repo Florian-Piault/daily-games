@@ -32,7 +32,7 @@ export const claw: GameDef = {
   family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
     const rounds = mode === 'single' ? 1 : n
@@ -161,7 +161,7 @@ export const claw: GameDef = {
           if (step.kind === 'lift') step.toY = homeY
         }
         stepT += dt
-        const u = clamp01(stepT / step.dur)
+        const u = clamp01(stepT / (step.dur * pace.round))
         switch (step.kind) {
           case 'move':
           case 'carry':
@@ -203,7 +203,7 @@ export const claw: GameDef = {
             if (grab >= rounds) {
               done = true
               sfx.fanfare()
-              timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800)
+              timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
             } else {
               planGrab()
             }

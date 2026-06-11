@@ -20,16 +20,17 @@ export const race: GameDef = {
   family: 'rank',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
+    const countdown = COUNTDOWN * pace.intro
 
     // temps d'arrivée par rang, strictement croissants (jitter < écart minimal)
-    const tFirst = 4.2
-    const tLast = Math.min(9.5, tFirst + Math.max(1.5, n * 0.55))
+    const tFirst = 4.2 * pace.continuous
+    const tLast = Math.min(9.5, 4.2 + Math.max(1.5, n * 0.55)) * pace.continuous
     const times = ctx.order.map((_, i) => {
       const u = n === 1 ? 0 : i / (n - 1)
-      return tFirst + u * (tLast - tFirst) + (i > 0 ? Math.random() * 0.12 : 0)
+      return tFirst + u * (tLast - tFirst) + (i > 0 ? Math.random() * 0.12 * pace.continuous : 0)
     })
 
     const racers: Racer[] = ctx.participants.map((p) => {
@@ -58,7 +59,7 @@ export const race: GameDef = {
       const laneH = Math.min(76, (h - topY - 30) / n)
       const r = Math.min(24, laneH * 0.36)
 
-      if (t < COUNTDOWN) {
+      if (t < countdown) {
         const sec = Math.floor(t)
         if (sec !== beeped) {
           beeped = sec
@@ -69,7 +70,7 @@ export const race: GameDef = {
         sfx.beep(true)
       }
 
-      const raceT = Math.max(0, t - COUNTDOWN)
+      const raceT = Math.max(0, t - countdown)
 
       // couloirs
       racers.forEach((_, lane) => {
@@ -101,8 +102,8 @@ export const race: GameDef = {
         if (racer.finished) drawBadge(c, racer.rank + 1, x + r + 17, y, 12)
       })
 
-      if (t < COUNTDOWN + 0.6) {
-        const remain = COUNTDOWN - t
+      if (t < countdown + 0.6) {
+        const remain = countdown - t
         const label = remain > 0 ? String(Math.ceil(remain)) : 'GO !'
         drawName(c, label, w / 2, h / 2, 80, remain > 0 ? '#e2e8f0' : '#34d399')
       }
@@ -114,7 +115,7 @@ export const race: GameDef = {
       if (over && !done) {
         done = true
         sfx.fanfare()
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1600)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1600 * pace.result)
       }
       if (done) {
         const msg = mode === 'single' ? `🏆 ${ctx.order[0].name} !` : '🏁 Ordre déterminé !'

@@ -22,9 +22,10 @@ export const cards: GameDef = {
   family: 'elim',
   run(ctx) {
     const view = setupCanvas(ctx.canvas)
-    const { sfx, mode } = ctx
+    const { sfx, mode, pace } = ctx
     const n = ctx.order.length
     const confetti = new Confetti()
+    const shuffleDur = SHUFFLE_DUR * pace.intro
 
     const slots = shuffle(ctx.order.map((_, i) => i))
     const cardList: Card[] = ctx.participants.map((p) => {
@@ -32,10 +33,10 @@ export const cards: GameDef = {
       return { p, rank, slot: slots[rank], flipT: null, revealed: false }
     })
 
-    const interval = n > 8 ? 1.05 : 1.4
+    const interval = (n > 8 ? 1.05 : 1.4) * pace.round
     // mode ordre : révélation du dernier rang vers le premier ; la carte n°1 attend un peu plus
     const revealAt = (rank: number) =>
-      SHUFFLE_DUR + 0.8 + (n - 1 - rank) * interval + (rank === 0 ? 0.9 : 0)
+      shuffleDur + 0.8 * pace.round + (n - 1 - rank) * interval + (rank === 0 ? 0.9 * pace.round : 0)
 
     // mode une-personne : le surlignage hésite sur quelques cartes avant de choisir
     const wanderSeq: number[] = []
@@ -49,9 +50,9 @@ export const cards: GameDef = {
       }
       wanderSeq.push(cardList.find((cd) => cd.rank === 0)!.slot)
     }
-    const WANDER_STEP = 0.42
-    const wanderStart = SHUFFLE_DUR + 0.5
-    const singleFlipAt = wanderStart + wanderSeq.length * WANDER_STEP + 0.5
+    const wanderStep = 0.42 * pace.round
+    const wanderStart = shuffleDur + 0.5 * pace.round
+    const singleFlipAt = wanderStart + wanderSeq.length * wanderStep + 0.5 * pace.round
 
     let lastWander = -1
     let done = false
@@ -80,7 +81,7 @@ export const cards: GameDef = {
       // surlignage baladeur (mode une-personne)
       let highlight = -1
       if (mode === 'single' && t > wanderStart && !done) {
-        const step = Math.min(wanderSeq.length - 1, Math.floor((t - wanderStart) / WANDER_STEP))
+        const step = Math.min(wanderSeq.length - 1, Math.floor((t - wanderStart) / wanderStep))
         highlight = wanderSeq[step]
         if (step !== lastWander) {
           lastWander = step
@@ -90,7 +91,7 @@ export const cards: GameDef = {
 
       cardList.forEach((card) => {
         // arrivée depuis la pile centrale pendant le mélange
-        const su = easeOutCubic(clamp01((t - card.slot * 0.06) / (SHUFFLE_DUR * 0.55)))
+        const su = easeOutCubic(clamp01((t - card.slot * 0.06 * pace.intro) / (shuffleDur * 0.55)))
         const target = slotPos(card.slot)
         const x = areaW / 2 - cw / 2 + (target.x - (areaW / 2 - cw / 2)) * su
         const y = h / 2 - ch / 2 + (target.y - (h / 2 - ch / 2)) * su
@@ -172,7 +173,7 @@ export const cards: GameDef = {
       const needed = mode === 'single' ? 1 : n
       if (revealedCount >= needed && !done) {
         done = true
-        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800)
+        timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
       }
       if (done) {
         const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'

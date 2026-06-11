@@ -228,7 +228,7 @@ export const plinko: GameDef = {
         const final = fullOrder(sim).map((i) => parts[i])
         winnerLabel = final[0].name
         confetti.burst((w - panelW) / 2, h / 3, 120)
-        timer = window.setTimeout(() => ctx.onFinish(final), 1700)
+        timer = window.setTimeout(() => ctx.onFinish(final), 1700 * ctx.pace.result)
       }
       if (done) {
         const msg = mode === 'single' ? `🏆 ${winnerLabel} !` : '🏁 Ordre déterminé !'

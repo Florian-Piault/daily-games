@@ -1,4 +1,6 @@
-import type { DrawMode } from './types'
+import type { DrawMode, Pace } from './types'
+
+export const DEFAULT_PACE: Pace = { round: 1, continuous: 1, intro: 1, result: 1 }
 
 export interface SavedState {
   members: string[]
@@ -7,6 +9,7 @@ export interface SavedState {
   muted: boolean
   lastFirst: { date: string; name: string } | null
   lastGame: string | null
+  pace: Pace
 }
 
 const KEY = 'daily-games-v1'
@@ -23,11 +26,13 @@ export function loadState(): SavedState {
     muted: false,
     lastFirst: null,
     lastGame: null,
+    pace: { ...DEFAULT_PACE },
   }
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return fallback
-    return { ...fallback, ...(JSON.parse(raw) as Partial<SavedState>) }
+    const parsed = JSON.parse(raw) as Partial<SavedState>
+    return { ...fallback, ...parsed, pace: { ...DEFAULT_PACE, ...parsed.pace } }
   } catch {
     return fallback
   }

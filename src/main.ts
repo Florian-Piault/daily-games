@@ -90,6 +90,7 @@ async function runGame(game: GameDef, names: string[], mode: DrawMode): Promise<
     mode,
     forbiddenFirst: forbidden,
     sfx,
+    pace: saved.pace,
     onFinish: (finalOrder) => onGameFinish(game, names, mode, finalOrder),
   })
 }
