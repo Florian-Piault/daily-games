@@ -12,6 +12,8 @@ export interface SavedState {
   pace: Pace
   /** Ids des jeux marqués favoris, affichés dans leur propre famille. */
   favorites: string[]
+  /** Numéro de variante d'avatar par membre (0/absent = avatar par défaut). */
+  avatarSeed: Record<string, number>
 }
 
 const KEY = 'daily-games-v1'
@@ -30,6 +32,7 @@ export function loadState(): SavedState {
     lastGame: null,
     pace: { ...DEFAULT_PACE },
     favorites: [],
+    avatarSeed: {},
   }
   try {
     const raw = localStorage.getItem(KEY)

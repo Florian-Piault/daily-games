@@ -143,6 +143,16 @@ body {
   height: 92px;
 }
 
+.avatar.reroll {
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.avatar.reroll:hover {
+  transform: scale(1.15) rotate(-8deg);
+  box-shadow: 0 0 0 2px #6366f1;
+}
+
 .remove {
   background: none;
   border: none;

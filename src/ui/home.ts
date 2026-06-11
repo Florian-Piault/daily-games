@@ -1,4 +1,4 @@
-import { avatarUri } from '../avatars'
+import { avatarUri, rerollAvatar } from '../avatars'
 import { FAMILIES, GAMES } from '../games'
 import { saveState, type SavedState } from '../state'
 import type { DrawMode, GameDef } from '../types'
@@ -62,7 +62,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
         <li class="team-row" data-name="${escapeHtml(m)}">
           <label>
             <input type="checkbox" ${saved.present[m] !== false ? 'checked' : ''} />
-            <img class="avatar" src="${avatarUri(m)}" alt="" />
+            <img class="avatar reroll" src="${avatarUri(m)}" alt="" title="Changer d'avatar" />
             <span>${escapeHtml(m)}</span>
           </label>
           <button class="remove" title="Retirer de l'équipe">✕</button>
@@ -81,9 +81,16 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
         renderTeam()
         renderGames()
       })
+      row.querySelector('img')!.addEventListener('click', (e) => {
+        e.preventDefault()
+        rerollAvatar(name)
+        saveState(saved)
+        renderTeam()
+      })
       row.querySelector('.remove')!.addEventListener('click', () => {
         saved.members = saved.members.filter((x) => x !== name)
         delete saved.present[name]
+        delete saved.avatarSeed[name]
         saveState(saved)
         renderTeam()
         renderGames()

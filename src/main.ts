@@ -2,13 +2,14 @@ import './style.css'
 import type { DrawMode, GameDef, Participant } from './types'
 import { loadState, saveState, todayKey } from './state'
 import { Sfx } from './audio'
-import { avatarFor, colorFor } from './avatars'
+import { avatarFor, colorFor, initAvatarVariants } from './avatars'
 import { computeOrder } from './draw'
 import { renderHome } from './ui/home'
 import { renderOrderResult, renderSingleResult } from './ui/result'
 
 const app = document.getElementById('app')!
 const saved = loadState()
+initAvatarVariants(saved.avatarSeed)
 const sfx = new Sfx(saved.muted)
 
 let cleanupGame: (() => void) | null = null
