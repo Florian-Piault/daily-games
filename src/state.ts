@@ -83,6 +83,28 @@ export function saveState(s: SavedState): void {
   localStorage.setItem(KEY, JSON.stringify(s))
 }
 
+/** Sérialise l'état complet pour l'export (sauvegarde lisible). */
+export function exportStateJson(s: SavedState): string {
+  return JSON.stringify(s, null, 2)
+}
+
+/**
+ * Parse et valide un backup importé. Retourne l'état si le JSON est valide et
+ * contient au moins un tableau `members`, sinon `null`. Les champs manquants ou
+ * anciens seront normalisés par loadState() au prochain chargement.
+ */
+export function parseImportedState(raw: string): SavedState | null {
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as SavedState).members)) {
+      return null
+    }
+    return parsed as SavedState
+  } catch {
+    return null
+  }
+}
+
 /** Enregistre le tirage du jour au journal (remplace l'entrée existante du jour, temps de parole conservé). */
 export function recordDraw(s: SavedState, game: string, order: string[]): void {
   const date = todayKey()

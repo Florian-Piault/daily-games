@@ -723,6 +723,21 @@ body {
   margin-top: 0;
 }
 
+.data-row {
+  border-top: 1px solid var(--card-border);
+  padding-top: 14px;
+}
+
+.data-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+#data-msg:empty {
+  display: none;
+}
+
 /* ---------- Jeu ---------- */
 
 .game-screen .game-stage {

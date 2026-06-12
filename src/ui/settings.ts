@@ -1,5 +1,6 @@
 import {
   icon,
+  Download,
   Flower2,
   Ghost,
   Leaf,
@@ -8,9 +9,18 @@ import {
   Snowflake,
   Sun,
   TreePine,
+  Upload,
   Waves,
 } from '../icons'
-import { DEFAULT_PACE, saveState, type SavedState, type ThemeKey } from '../state'
+import {
+  DEFAULT_PACE,
+  exportStateJson,
+  parseImportedState,
+  saveState,
+  todayKey,
+  type SavedState,
+  type ThemeKey,
+} from '../state'
 import type { Pace } from '../types'
 import { openModal } from './modal'
 
@@ -97,7 +107,19 @@ export function openSettings(saved: SavedState): void {
     <footer class="modal-foot">
       <button class="btn" id="settings-reset">Réinitialiser</button>
       <p class="hint">Appliqué au prochain jeu lancé.</p>
-    </footer>`,
+    </footer>
+    <div class="setting-row data-row">
+      <div class="setting-label">
+        <span>Données</span>
+        <span class="hint">sauvegarde locale : équipe, historique, réglages</span>
+      </div>
+      <div class="data-actions">
+        <button type="button" class="btn" id="data-export">${icon(Download, 16)} Exporter</button>
+        <button type="button" class="btn" id="data-import">${icon(Upload, 16)} Importer</button>
+        <input type="file" id="data-file" accept="application/json,.json" hidden />
+      </div>
+    </div>
+    <p class="hint" id="data-msg" role="status" aria-live="polite"></p>`,
   })
 
   function sync() {
@@ -148,6 +170,35 @@ export function openSettings(saved: SavedState): void {
     saved.timeboxSec = 0
     saveState(saved)
     sync()
+  })
+
+  const msg = dialog.querySelector<HTMLParagraphElement>('#data-msg')!
+
+  dialog.querySelector('#data-export')!.addEventListener('click', () => {
+    const blob = new Blob([exportStateJson(saved)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `daily-games-backup-${todayKey()}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    msg.textContent = 'Sauvegarde exportée.'
+  })
+
+  const fileInput = dialog.querySelector<HTMLInputElement>('#data-file')!
+  dialog.querySelector('#data-import')!.addEventListener('click', () => fileInput.click())
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files?.[0]
+    fileInput.value = '' // permet de réimporter le même fichier
+    if (!file) return
+    const imported = parseImportedState(await file.text())
+    if (!imported) {
+      msg.textContent = 'Fichier invalide : sauvegarde non reconnue.'
+      return
+    }
+    if (!confirm('Remplacer toutes les données actuelles par cette sauvegarde ?')) return
+    saveState(imported)
+    location.reload()
   })
 
   sync()
