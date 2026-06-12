@@ -44,6 +44,102 @@ export function loop(fn: (dt: number, t: number) => void): () => void {
 export const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3)
 export const clamp01 = (v: number): number => Math.max(0, Math.min(1, v))
 
+/** Active une lueur (à réinitialiser avec clearShadow après usage). Coûteux : à réserver aux accents. */
+export function glow(c: CanvasRenderingContext2D, color: string, blur: number): void {
+  c.shadowColor = color
+  c.shadowBlur = blur
+  c.shadowOffsetX = 0
+  c.shadowOffsetY = 0
+}
+
+export function clearShadow(c: CanvasRenderingContext2D): void {
+  c.shadowColor = 'transparent'
+  c.shadowBlur = 0
+}
+
+/** Dégradé radial prêt à servir de fillStyle (centre → bord). */
+export function radialGradientFill(
+  c: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number,
+  inner: string,
+  outer: string,
+): CanvasGradient {
+  const g = c.createRadialGradient(cx, cy, Math.max(1, r * 0.08), cx, cy, Math.max(2, r))
+  g.addColorStop(0, inner)
+  g.addColorStop(1, outer)
+  return g
+}
+
+/**
+ * Effets caméra cosmétiques (shake / zoom-pulse / flash) appliqués autour d'un point.
+ * Compose par-dessus la transform DPR existante via save/restore — ne touche jamais
+ * au résultat du jeu.
+ *
+ * Usage par frame : apply(c, cx, cy, dt) → dessin du monde → release(c) →
+ * (UI hors-monde) → drawOverlay(c, w, h) en toute fin.
+ */
+export class Camera {
+  /** Désactive secousses, flash et zoom-pulse (réglage « Secousses & flash »). */
+  enabled = true
+  private shakeT = 0
+  private shakeDur = 0
+  private shakeMag = 0
+  private flashA = 0
+  private zoom = 1
+  private zoomTarget = 1
+
+  shake(mag: number, dur = 0.4): void {
+    if (!this.enabled) return
+    this.shakeMag = mag
+    this.shakeDur = dur
+    this.shakeT = dur
+  }
+
+  flash(amount = 0.55): void {
+    if (!this.enabled) return
+    this.flashA = amount
+  }
+
+  /** Coup de zoom instantané qui revient à 1. */
+  zoomPulse(scale: number): void {
+    if (!this.enabled) return
+    this.zoom = scale
+    this.zoomTarget = 1
+  }
+
+  apply(c: CanvasRenderingContext2D, cx: number, cy: number, dt: number): void {
+    this.shakeT = Math.max(0, this.shakeT - dt)
+    this.zoom += (this.zoomTarget - this.zoom) * Math.min(1, dt * 8)
+    this.flashA = Math.max(0, this.flashA - dt * 2)
+    let dx = 0
+    let dy = 0
+    if (this.shakeT > 0 && this.shakeDur > 0) {
+      const m = this.shakeMag * (this.shakeT / this.shakeDur)
+      dx = (Math.random() * 2 - 1) * m
+      dy = (Math.random() * 2 - 1) * m
+    }
+    c.save()
+    c.translate(cx + dx, cy + dy)
+    c.scale(this.zoom, this.zoom)
+    c.translate(-cx, -cy)
+  }
+
+  release(c: CanvasRenderingContext2D): void {
+    c.restore()
+  }
+
+  /** Flash plein écran décroissant — à dessiner en dernier, hors transform monde. */
+  drawOverlay(c: CanvasRenderingContext2D, w: number, h: number): void {
+    if (this.flashA <= 0.001) return
+    c.save()
+    c.fillStyle = `rgba(255,255,255,${this.flashA})`
+    c.fillRect(0, 0, w, h)
+    c.restore()
+  }
+}
+
 export function drawAvatar(
   c: CanvasRenderingContext2D,
   p: Participant,

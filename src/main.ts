@@ -4,6 +4,7 @@ import { loadState, recordDraw, recordSpeakTime, saveState, todayKey } from './s
 import { Sfx } from './audio'
 import { avatarFor, colorFor, initAvatarVariants } from './avatars'
 import { computeOrder } from './draw'
+import { readPalette } from './games/palette'
 import { icon, ArrowLeft, Volume2, VolumeX } from './icons'
 import { wireFullscreenButton } from './ui/fullscreen'
 import { renderHome } from './ui/home'
@@ -70,11 +71,19 @@ function onLaunch(game: GameDef, present: string[], mode: DrawMode): void {
   void runGame(game, present, mode)
 }
 
-async function runGame(game: GameDef, names: string[], mode: DrawMode): Promise<void> {
+async function runGame(
+  game: GameDef,
+  names: string[],
+  mode: DrawMode,
+  withIntro = true,
+): Promise<void> {
   stopGame()
   const participants = await toParticipants(names)
   const forbidden = forbiddenFirstFor(names)
   const order = computeOrder(participants, forbidden)
+  // mise en scène mémorisée ; l'intro ne joue qu'au premier tirage d'une série « une personne »
+  const prefs = saved.stagePrefs[game.id]
+  const stage = prefs ? { intro: withIntro ? prefs.intro : 'none', format: prefs.format } : undefined
 
   app.innerHTML = `
   <div class="screen game-screen">
@@ -106,6 +115,9 @@ async function runGame(game: GameDef, names: string[], mode: DrawMode): Promise<
     forbiddenFirst: forbidden,
     sfx,
     pace: saved.pace,
+    stage,
+    palette: readPalette(),
+    suspense: saved.suspense,
     onFinish: (finalOrder) => onGameFinish(game, names, mode, finalOrder),
   })
 }
@@ -146,7 +158,7 @@ function showSingleResult(): void {
         run.drawn.push((await toParticipants(remaining))[0])
         showSingleResult()
       } else {
-        void runGame(run.game, remaining, 'single')
+        void runGame(run.game, remaining, 'single', false)
       }
     },
     onHome: showHome,

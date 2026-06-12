@@ -1,4 +1,4 @@
-import type { DrawMode, Pace } from './types'
+import { DEFAULT_SUSPENSE, type DrawMode, type GameStage, type Pace, type SuspenseConfig } from './types'
 
 export const DEFAULT_PACE: Pace = { round: 1, continuous: 1, intro: 1, result: 1 }
 
@@ -36,6 +36,10 @@ export interface SavedState {
   theme: ThemeKey
   /** Time-box par personne en secondes (0 = désactivé). */
   timeboxSec: number
+  /** Dernière mise en scène choisie par jeu (intro + format), mémorisée pour le picker. */
+  stagePrefs: Record<string, GameStage>
+  /** Effets de suspense activés (roue / machine à sous). */
+  suspense: SuspenseConfig
   history: HistoryEntry[]
 }
 
@@ -59,13 +63,20 @@ export function loadState(): SavedState {
     avatarSeed: {},
     theme: 'dark',
     timeboxSec: 0,
+    stagePrefs: {},
+    suspense: { ...DEFAULT_SUSPENSE },
     history: [],
   }
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return fallback
     const parsed = JSON.parse(raw) as Partial<SavedState>
-    const state = { ...fallback, ...parsed, pace: { ...DEFAULT_PACE, ...parsed.pace } }
+    const state = {
+      ...fallback,
+      ...parsed,
+      pace: { ...DEFAULT_PACE, ...parsed.pace },
+      suspense: { ...DEFAULT_SUSPENSE, ...parsed.suspense },
+    }
     // migration : avatarSeed stockait un numéro de variante, désormais le seed complet
     for (const [name, v] of Object.entries(state.avatarSeed)) {
       if (typeof v === 'number') {

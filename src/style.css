@@ -1087,3 +1087,54 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Réglage « Mise en scène » : intro + format par jeu (chips qui s'enroulent) */
+.seg.wrap {
+  flex-wrap: wrap;
+  width: auto;
+  margin-bottom: 0;
+}
+
+.stage-config {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stage-game {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--row-bg);
+  border-radius: 12px;
+}
+
+.stage-game-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.stage-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stage-field-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+  min-width: 50px;
+}
+
+.stage-field .seg {
+  background: var(--tile-bg);
+}
+
+.stage-field .seg-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
