@@ -106,7 +106,7 @@ export function openSettings(saved: SavedState): void {
     ).join('')}
     <footer class="modal-foot">
       <button class="btn" id="settings-reset">Réinitialiser</button>
-      <p class="hint">Appliqué au prochain jeu lancé.</p>
+      <p class="hint">Thème appliqué aussitôt ; vitesse et time-box au prochain tirage.</p>
     </footer>
     <div class="setting-row data-row">
       <div class="setting-label">
