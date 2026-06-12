@@ -9,10 +9,10 @@ import {
   Sun,
   TreePine,
   Waves,
-  X,
 } from '../icons'
 import { DEFAULT_PACE, saveState, type SavedState, type ThemeKey } from '../state'
 import type { Pace } from '../types'
+import { openModal } from './modal'
 
 interface Row {
   key: keyof Pace
@@ -57,14 +57,10 @@ export function applyTheme(theme: ThemeKey): void {
 
 /** Ouvre la modale « Réglages ». Les changements sont sauvegardés immédiatement. */
 export function openSettings(saved: SavedState): void {
-  const overlay = document.createElement('div')
-  overlay.className = 'modal-overlay'
-  overlay.innerHTML = `
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-    <header class="modal-head">
-      <h2 id="settings-title">${icon(Settings)} Réglages</h2>
-      <button class="btn icon" id="settings-close" title="Fermer">${icon(X)}</button>
-    </header>
+  const { dialog } = openModal({
+    labelledBy: 'settings-title',
+    titleHtml: `${icon(Settings)} Réglages`,
+    bodyHtml: `
     <div class="setting-label">
       <span>Thème</span>
     </div>
@@ -101,25 +97,25 @@ export function openSettings(saved: SavedState): void {
     <footer class="modal-foot">
       <button class="btn" id="settings-reset">Réinitialiser</button>
       <p class="hint">Appliqué au prochain jeu lancé.</p>
-    </footer>
-  </div>`
+    </footer>`,
+  })
 
   function sync() {
-    overlay.querySelectorAll<HTMLDivElement>('.seg[data-key]').forEach((seg) => {
+    dialog.querySelectorAll<HTMLDivElement>('.seg[data-key]').forEach((seg) => {
       const value = saved.pace[seg.dataset.key as keyof Pace]
       seg.querySelectorAll<HTMLButtonElement>('.seg-btn').forEach((b) => {
         b.classList.toggle('active', Number(b.dataset.value) === value)
       })
     })
-    overlay.querySelectorAll<HTMLButtonElement>('#timebox-seg .seg-btn').forEach((b) => {
+    dialog.querySelectorAll<HTMLButtonElement>('#timebox-seg .seg-btn').forEach((b) => {
       b.classList.toggle('active', Number(b.dataset.value) === saved.timeboxSec)
     })
-    overlay.querySelectorAll<HTMLButtonElement>('.theme-btn').forEach((b) => {
+    dialog.querySelectorAll<HTMLButtonElement>('.theme-btn').forEach((b) => {
       b.classList.toggle('active', b.dataset.theme === saved.theme)
     })
   }
 
-  overlay.querySelectorAll<HTMLDivElement>('.seg[data-key]').forEach((seg) => {
+  dialog.querySelectorAll<HTMLDivElement>('.seg[data-key]').forEach((seg) => {
     const key = seg.dataset.key as keyof Pace
     seg.querySelectorAll<HTMLButtonElement>('.seg-btn').forEach((b) => {
       b.addEventListener('click', () => {
@@ -130,7 +126,7 @@ export function openSettings(saved: SavedState): void {
     })
   })
 
-  overlay.querySelectorAll<HTMLButtonElement>('#timebox-seg .seg-btn').forEach((b) => {
+  dialog.querySelectorAll<HTMLButtonElement>('#timebox-seg .seg-btn').forEach((b) => {
     b.addEventListener('click', () => {
       saved.timeboxSec = Number(b.dataset.value)
       saveState(saved)
@@ -138,7 +134,7 @@ export function openSettings(saved: SavedState): void {
     })
   })
 
-  overlay.querySelectorAll<HTMLButtonElement>('.theme-btn').forEach((b) => {
+  dialog.querySelectorAll<HTMLButtonElement>('.theme-btn').forEach((b) => {
     b.addEventListener('click', () => {
       saved.theme = b.dataset.theme as ThemeKey
       applyTheme(saved.theme)
@@ -147,26 +143,12 @@ export function openSettings(saved: SavedState): void {
     })
   })
 
-  overlay.querySelector('#settings-reset')!.addEventListener('click', () => {
+  dialog.querySelector('#settings-reset')!.addEventListener('click', () => {
     saved.pace = { ...DEFAULT_PACE }
     saved.timeboxSec = 0
     saveState(saved)
     sync()
   })
 
-  function close() {
-    document.removeEventListener('keydown', onKey)
-    overlay.remove()
-  }
-  function onKey(e: KeyboardEvent) {
-    if (e.key === 'Escape') close()
-  }
-  overlay.querySelector('#settings-close')!.addEventListener('click', close)
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) close()
-  })
-  document.addEventListener('keydown', onKey)
-
   sync()
-  document.body.appendChild(overlay)
 }
