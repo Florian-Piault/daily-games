@@ -15,6 +15,7 @@ export function icon(node: IconNode, size = 18): string {
 export {
   ArrowLeft,
   BookOpen,
+  Check,
   CircleCheck,
   ClipboardList,
   Crown,

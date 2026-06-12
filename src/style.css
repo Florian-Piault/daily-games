@@ -410,6 +410,33 @@ body {
   color: var(--danger);
 }
 
+.confirm-group {
+  display: flex;
+  gap: 2px;
+}
+
+.confirm-del,
+.cancel-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+}
+
+.confirm-del {
+  color: var(--danger);
+}
+
+.cancel-del {
+  color: var(--faint);
+}
+
+.cancel-del:hover {
+  color: var(--text);
+}
+
 .rename-form {
   display: flex;
   gap: 6px;

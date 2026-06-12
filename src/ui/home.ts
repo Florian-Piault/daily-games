@@ -3,6 +3,7 @@ import { FAMILIES, GAMES } from '../games'
 import {
   icon,
   BookOpen,
+  Check,
   ClipboardList,
   Pencil,
   Settings,
@@ -87,7 +88,66 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
     renderTeam()
   }
 
+  // Confirmation inline du retrait : une seule ligne « armée » à la fois.
+  let activeDisarm: (() => void) | null = null
+
+  function removeMember(name: string) {
+    saved.members = saved.members.filter((x) => x !== name)
+    delete saved.present[name]
+    delete saved.avatarSeed[name]
+    saveState(saved)
+    renderTeam()
+    renderGames()
+  }
+
+  /** Remplace les actions de la ligne par ✓ confirmer / ✕ annuler. */
+  function armRemoval(row: HTMLLIElement, name: string) {
+    activeDisarm?.() // ré-arme exclusif : désarme la ligne précédente
+    const editBtn = row.querySelector<HTMLButtonElement>('.edit')!
+    const removeBtn = row.querySelector<HTMLButtonElement>('.remove')!
+    editBtn.hidden = true
+    removeBtn.hidden = true
+    const group = document.createElement('span')
+    group.className = 'confirm-group'
+    group.innerHTML = `
+      <button class="confirm-del" title="Confirmer le retrait">${icon(Check, 16)}</button>
+      <button class="cancel-del" title="Annuler">${icon(X, 16)}</button>`
+    row.appendChild(group)
+
+    function disarm() {
+      document.removeEventListener('keydown', onKey, true)
+      document.removeEventListener('click', onOutside, true)
+      activeDisarm = null
+      group.remove()
+      editBtn.hidden = false
+      removeBtn.hidden = false
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        disarm()
+      }
+    }
+    function onOutside(e: MouseEvent) {
+      if (!row.contains(e.target as Node)) disarm()
+    }
+    activeDisarm = disarm
+
+    group.querySelector('.confirm-del')!.addEventListener('click', () => {
+      disarm()
+      removeMember(name)
+    })
+    group.querySelector('.cancel-del')!.addEventListener('click', disarm)
+    // différé : évite que le clic courant déclenche aussitôt onOutside
+    setTimeout(() => {
+      document.addEventListener('keydown', onKey, true)
+      document.addEventListener('click', onOutside, true)
+    }, 0)
+    group.querySelector<HTMLButtonElement>('.cancel-del')!.focus()
+  }
+
   function renderTeam() {
+    activeDisarm?.() // nettoie l'éventuel état armé avant de reconstruire la liste
     if (!saved.members.length) {
       teamList.innerHTML = '<li class="empty">Ajoute les membres de ton équipe</li>'
     } else {
@@ -144,14 +204,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
           renameMember(name, neu)
         })
       })
-      row.querySelector('.remove')!.addEventListener('click', () => {
-        saved.members = saved.members.filter((x) => x !== name)
-        delete saved.present[name]
-        delete saved.avatarSeed[name]
-        saveState(saved)
-        renderTeam()
-        renderGames()
-      })
+      row.querySelector('.remove')!.addEventListener('click', () => armRemoval(row, name))
     })
   }
 
