@@ -453,9 +453,23 @@ body {
 }
 
 .add-row input:focus,
-.rename-form input:focus {
+.rename-form input:focus,
+.import-area:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
+}
+
+.import-area {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--btn-border);
+  color: inherit;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
 }
 
 .seg {

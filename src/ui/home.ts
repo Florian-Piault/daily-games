@@ -8,6 +8,7 @@ import {
   Settings,
   Star,
   Target,
+  Users,
   Volume2,
   VolumeX,
   X,
@@ -16,6 +17,8 @@ import {
 import { saveState, type SavedState } from '../state'
 import type { DrawMode, GameDef } from '../types'
 import { escapeHtml } from './esc'
+import { wireFullscreenButton } from './fullscreen'
+import { openImport } from './import'
 import { openSettings } from './settings'
 
 export interface HomeOpts {
@@ -35,6 +38,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
       <div class="topbar-btns">
         <button class="btn icon" id="journal" title="Journal du daily">${icon(BookOpen)}</button>
         <button class="btn icon" id="settings" title="Réglages">${icon(Settings)}</button>
+        <button class="btn icon" id="fullscreen" title="Plein écran"></button>
         <button class="btn icon" id="mute" title="Son">${saved.muted ? icon(VolumeX) : icon(Volume2)}</button>
       </div>
     </header>
@@ -45,6 +49,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
         <form id="add-form" class="add-row">
           <input id="add-input" type="text" placeholder="Ajouter un membre…" autocomplete="off" maxlength="24" />
           <button class="btn" type="submit">Ajouter</button>
+          <button class="btn icon" type="button" id="import" title="Importer une liste">${icon(Users)}</button>
         </form>
         <p class="hint" id="present-count"></p>
       </section>
@@ -225,23 +230,40 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
 
   app.querySelector('#settings')!.addEventListener('click', () => openSettings(saved))
   app.querySelector('#journal')!.addEventListener('click', opts.onJournal)
+  wireFullscreenButton(app.querySelector<HTMLButtonElement>('#fullscreen')!)
+
+  /** Ajoute un nom (tronqué à 24 car.) s'il est non vide et pas déjà dans l'équipe. Retourne true si ajouté. */
+  function addMember(raw: string): boolean {
+    const name = raw.trim().slice(0, 24)
+    if (!name || saved.members.includes(name)) return false
+    saved.members.push(name)
+    saved.present[name] = true
+    return true
+  }
 
   const form = app.querySelector<HTMLFormElement>('#add-form')!
   const input = app.querySelector<HTMLInputElement>('#add-input')!
   form.addEventListener('submit', (e) => {
     e.preventDefault()
-    const name = input.value.trim()
-    if (!name || saved.members.includes(name)) {
+    if (!addMember(input.value)) {
       input.select()
       return
     }
-    saved.members.push(name)
-    saved.present[name] = true
     saveState(saved)
     input.value = ''
     input.focus()
     renderTeam()
     renderGames()
+  })
+
+  app.querySelector('#import')!.addEventListener('click', () => {
+    openImport((names) => {
+      const added = names.reduce((n, name) => n + (addMember(name) ? 1 : 0), 0)
+      if (!added) return
+      saveState(saved)
+      renderTeam()
+      renderGames()
+    })
   })
 
   renderTeam()

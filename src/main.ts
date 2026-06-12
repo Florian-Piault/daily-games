@@ -5,6 +5,7 @@ import { Sfx } from './audio'
 import { avatarFor, colorFor, initAvatarVariants } from './avatars'
 import { computeOrder } from './draw'
 import { icon, ArrowLeft, Volume2, VolumeX } from './icons'
+import { wireFullscreenButton } from './ui/fullscreen'
 import { renderHome } from './ui/home'
 import { renderJournal } from './ui/journal'
 import { renderOrderResult, renderSingleResult } from './ui/result'
@@ -80,12 +81,16 @@ async function runGame(game: GameDef, names: string[], mode: DrawMode): Promise<
     <header class="topbar">
       <button class="btn icon" id="back" title="Annuler">${icon(ArrowLeft)}</button>
       <h1>${game.emoji} ${game.name}</h1>
-      <button class="btn icon" id="mute" title="Son">${saved.muted ? icon(VolumeX) : icon(Volume2)}</button>
+      <div class="topbar-btns">
+        <button class="btn icon" id="fullscreen" title="Plein écran"></button>
+        <button class="btn icon" id="mute" title="Son">${saved.muted ? icon(VolumeX) : icon(Volume2)}</button>
+      </div>
     </header>
     <div class="game-stage"><canvas id="game-canvas"></canvas></div>
   </div>`
 
   app.querySelector('#back')!.addEventListener('click', showHome)
+  wireFullscreenButton(app.querySelector<HTMLButtonElement>('#fullscreen')!)
   const muteBtn = app.querySelector<HTMLButtonElement>('#mute')!
   muteBtn.addEventListener('click', () => {
     setMuted(!sfx.muted)
