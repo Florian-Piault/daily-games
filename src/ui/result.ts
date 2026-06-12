@@ -1,4 +1,15 @@
 import { avatarUri } from '../avatars'
+import {
+  icon,
+  ArrowLeft,
+  CircleCheck,
+  ClipboardList,
+  Dice6,
+  House,
+  Mic,
+  Target,
+  Timer,
+} from '../icons'
 import type { Participant } from '../types'
 import { escapeHtml } from './esc'
 
@@ -27,16 +38,16 @@ export function renderOrderResult(app: HTMLElement, opts: OrderResultOpts): void
   app.innerHTML = `
   <div class="screen result">
     <header class="topbar">
-      <button class="btn icon" id="home" title="Accueil">←</button>
-      <h1>📋 Ordre de passage</h1>
+      <button class="btn icon" id="home" title="Accueil">${icon(ArrowLeft)}</button>
+      <h1>${icon(ClipboardList)} Ordre de passage</h1>
       <span class="topbar-spacer"></span>
     </header>
     <main class="result-main">
       <ul class="result-list" id="list"></ul>
       <p class="hint" id="result-hint">Clique sur une personne quand elle a fini de parler.</p>
       <div class="actions">
-        <button class="btn" id="replay">🎲 Refaire le tirage</button>
-        <button class="btn" id="home2">🏠 Accueil</button>
+        <button class="btn" id="replay">${icon(Dice6)} Refaire le tirage</button>
+        <button class="btn" id="home2">${icon(House)} Accueil</button>
       </div>
     </main>
   </div>`
@@ -85,12 +96,12 @@ export function renderOrderResult(app: HTMLElement, opts: OrderResultOpts): void
         <img class="avatar" src="${avatarUri(p.name)}" alt="" />
         <span class="name">${escapeHtml(p.name)}</span>
         ${i === next && opts.timeboxSec > 0 ? '<span class="timer"></span><div class="timebox-bar"></div>' : ''}
-        <span class="check">${done.has(i) ? '✅' : i === next ? '🎤' : ''}</span>
+        <span class="check">${done.has(i) ? icon(CircleCheck, 18) : i === next ? icon(Mic, 18) : ''}</span>
       </li>`,
       )
       .join('')
     hint.textContent =
-      next === -1 ? '🎉 Tout le monde est passé — bon daily !' : 'Clique sur une personne quand elle a fini de parler.'
+      next === -1 ? 'Tout le monde est passé — bon daily !' : 'Clique sur une personne quand elle a fini de parler.'
     list.querySelectorAll<HTMLLIElement>('.result-row').forEach((row) => {
       row.addEventListener('click', () => {
         const i = Number(row.dataset.i)
@@ -135,8 +146,8 @@ export function renderSingleResult(app: HTMLElement, opts: SingleResultOpts): vo
   app.innerHTML = `
   <div class="screen result">
     <header class="topbar">
-      <button class="btn icon" id="home" title="Accueil">←</button>
-      <h1>🎯 Tirage au sort</h1>
+      <button class="btn icon" id="home" title="Accueil">${icon(ArrowLeft)}</button>
+      <h1>${icon(Target)} Tirage au sort</h1>
       <span class="topbar-spacer"></span>
     </header>
     <main class="result-main">
@@ -147,7 +158,7 @@ export function renderSingleResult(app: HTMLElement, opts: SingleResultOpts): vo
           <p class="winner-name">${escapeHtml(last.name)}</p>
         </div>
       </div>
-      ${opts.timeboxSec > 0 ? '<div class="winner-timer">⏱ <span class="timer"></span></div>' : ''}
+      ${opts.timeboxSec > 0 ? `<div class="winner-timer">${icon(Timer, 16)} <span class="timer"></span></div>` : ''}
       ${
         previous.length
           ? `<h3>Déjà passé·e·s</h3>
@@ -162,10 +173,10 @@ export function renderSingleResult(app: HTMLElement, opts: SingleResultOpts): vo
       <div class="actions">
         ${
           opts.remaining > 0
-            ? `<button class="btn primary" id="next">🎲 Tirer la personne suivante (${opts.remaining} restant·e·s)</button>`
-            : '<p class="all-done">🎉 Tout le monde est passé !</p>'
+            ? `<button class="btn primary" id="next">${icon(Dice6)} Tirer la personne suivante (${opts.remaining} restant·e·s)</button>`
+            : '<p class="all-done">Tout le monde est passé !</p>'
         }
-        <button class="btn" id="home2">🏠 Accueil</button>
+        <button class="btn" id="home2">${icon(House)} Accueil</button>
       </div>
     </main>
   </div>`

@@ -4,6 +4,11 @@
   padding: 0;
 }
 
+svg[aria-hidden='true'] {
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
 /* ---------- Thèmes ---------- */
 
 :root {
@@ -509,11 +514,13 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.1rem;
   line-height: 1;
   padding: 5px;
   color: var(--faint);
   transition: color 0.15s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fav-btn:hover {
@@ -523,6 +530,10 @@ body {
 
 .fav-btn.active {
   color: var(--gold);
+}
+
+.fav-btn.active svg {
+  fill: currentColor;
 }
 
 .game-card {
@@ -554,6 +565,10 @@ body {
 
 .game-emoji {
   font-size: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
 }
 
 .game-name {
@@ -666,7 +681,10 @@ body {
 }
 
 .theme-btn .theme-emoji {
-  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
 }
 
 .theme-btn:hover {
@@ -789,9 +807,10 @@ body {
 }
 
 .check {
-  font-size: 1.1rem;
   width: 28px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ---------- Time-box ---------- */

@@ -167,7 +167,7 @@ export const battle: GameDef = {
       }
       if (done) {
         const winner = fighters.find((f) => f.alive)!
-        drawName(c, '👑', winner.x, winner.y - fr - 36, 30)
+        drawName(c, '★', winner.x, winner.y - fr - 36, 30)
         const msg =
           mode === 'single'
             ? `${winner.p.name} est tiré·e au sort !`

@@ -17,6 +17,7 @@
     "@dicebear/collection": "^9.2.2",
     "@dicebear/core": "^9.2.2",
     "chart.js": "^4.5.1",
+    "lucide": "^1.18.0",
     "matter-js": "^0.20.0"
   }
 }

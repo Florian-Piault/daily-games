@@ -158,7 +158,7 @@ export const ladder: GameDef = {
       // cases du bas
       for (let s = 0; s < n; s++) {
         if (mode === 'single') {
-          if (s === 0) drawName(c, '🎤', X(s), yBot + 24, 22)
+          if (s === 0) drawName(c, '▶', X(s), yBot + 24, 22)
         } else {
           drawBadge(c, s + 1, X(s), yBot + 22, 12)
         }
@@ -230,7 +230,7 @@ export const ladder: GameDef = {
       confetti.step(c, dt)
 
       if (done) {
-        const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${ctx.order[0].name} est tiré·e au sort !` : 'Ordre déterminé !'
         drawName(c, msg, areaW / 2, h - 28, 24, '#fbbf24')
       }
     })

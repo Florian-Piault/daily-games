@@ -108,7 +108,7 @@ export const cannon: GameDef = {
       c.lineWidth = 2.5
       c.stroke()
       c.restore()
-      if (t - lastFire < 0.16) drawName(c, '💥', muzzle.x + 52, muzzle.y - 52, 30)
+      if (t - lastFire < 0.16) drawName(c, '✦', muzzle.x + 52, muzzle.y - 52, 30)
 
       shots.forEach((s) => {
         if (s.fireAt > t) return
@@ -164,7 +164,7 @@ export const cannon: GameDef = {
         timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
       }
       if (done) {
-        const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${ctx.order[0].name} est tiré·e au sort !` : 'Ordre déterminé !'
         drawName(c, msg, areaW / 2, 30, 24, '#fbbf24')
       }
     })

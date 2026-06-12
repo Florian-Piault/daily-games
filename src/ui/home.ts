@@ -1,5 +1,18 @@
 import { avatarUri, rerollAvatar } from '../avatars'
 import { FAMILIES, GAMES } from '../games'
+import {
+  icon,
+  BookOpen,
+  ClipboardList,
+  Pencil,
+  Settings,
+  Star,
+  Target,
+  Volume2,
+  VolumeX,
+  X,
+  Dice6,
+} from '../icons'
 import { saveState, type SavedState } from '../state'
 import type { DrawMode, GameDef } from '../types'
 import { escapeHtml } from './esc'
@@ -18,11 +31,11 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
   app.innerHTML = `
   <div class="screen home">
     <header class="topbar">
-      <h1>🎲 Daily Games</h1>
+      <h1>${icon(Dice6)} Daily Games</h1>
       <div class="topbar-btns">
-        <button class="btn icon" id="journal" title="Journal du daily">📖</button>
-        <button class="btn icon" id="settings" title="Réglages">⚙️</button>
-        <button class="btn icon" id="mute" title="Son">${saved.muted ? '🔇' : '🔊'}</button>
+        <button class="btn icon" id="journal" title="Journal du daily">${icon(BookOpen)}</button>
+        <button class="btn icon" id="settings" title="Réglages">${icon(Settings)}</button>
+        <button class="btn icon" id="mute" title="Son">${saved.muted ? icon(VolumeX) : icon(Volume2)}</button>
       </div>
     </header>
     <main class="home-grid">
@@ -38,8 +51,8 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
       <section class="card play-card">
         <h2>Tirage</h2>
         <div class="seg" id="mode-seg">
-          <button type="button" data-mode="order" class="seg-btn">📋 Ordre complet</button>
-          <button type="button" data-mode="single" class="seg-btn">🎯 Une personne</button>
+          <button type="button" data-mode="order" class="seg-btn">${icon(ClipboardList)} Ordre complet</button>
+          <button type="button" data-mode="single" class="seg-btn">${icon(Target)} Une personne</button>
         </div>
         <div id="games"></div>
         <p class="hint" id="launch-hint">Choisis un jeu pour lancer le tirage. Les données restent dans ton navigateur.</p>
@@ -71,7 +84,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
 
   function renderTeam() {
     if (!saved.members.length) {
-      teamList.innerHTML = '<li class="empty">Ajoute les membres de ton équipe 👇</li>'
+      teamList.innerHTML = '<li class="empty">Ajoute les membres de ton équipe</li>'
     } else {
       teamList.innerHTML = saved.members
         .map(
@@ -82,8 +95,8 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
             <img class="avatar reroll" src="${avatarUri(m)}" alt="" title="Changer d'avatar" />
             <span>${escapeHtml(m)}</span>
           </label>
-          <button class="edit" title="Renommer">✏️</button>
-          <button class="remove" title="Retirer de l'équipe">✕</button>
+          <button class="edit" title="Renommer">${icon(Pencil, 16)}</button>
+          <button class="remove" title="Retirer de l'équipe">${icon(X, 16)}</button>
         </li>`,
         )
         .join('')
@@ -148,10 +161,10 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
               <span class="game-tag">${g.tagline}</span>
             </button>
             <button class="fav-btn ${isFav(g) ? 'active' : ''}" data-id="${g.id}"
-              title="${isFav(g) ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${isFav(g) ? '★' : '☆'}</button>
+              title="${isFav(g) ? 'Retirer des favoris' : 'Ajouter aux favoris'}">${icon(Star, 16)}</button>
           </div>`
     const sections: { label: string; games: GameDef[] }[] = [
-      { label: '⭐ Favoris', games: GAMES.filter(isFav) },
+      { label: `${icon(Star, 14)} Favoris`, games: GAMES.filter(isFav) },
       ...FAMILIES.map((f) => ({
         label: f.label,
         games: GAMES.filter((g) => g.family === f.key && !isFav(g)),
@@ -207,7 +220,7 @@ export function renderHome(app: HTMLElement, opts: HomeOpts): void {
   const muteBtn = app.querySelector<HTMLButtonElement>('#mute')!
   muteBtn.addEventListener('click', () => {
     opts.setMuted(!saved.muted)
-    muteBtn.textContent = saved.muted ? '🔇' : '🔊'
+    muteBtn.innerHTML = saved.muted ? icon(VolumeX) : icon(Volume2)
   })
 
   app.querySelector('#settings')!.addEventListener('click', () => openSettings(saved))

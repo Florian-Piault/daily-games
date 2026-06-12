@@ -176,7 +176,7 @@ export const cards: GameDef = {
         timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1800 * pace.result)
       }
       if (done) {
-        const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${ctx.order[0].name} est tiré·e au sort !` : 'Ordre déterminé !'
         drawName(c, msg, areaW / 2, h - 26, 24, '#fbbf24')
       }
     })

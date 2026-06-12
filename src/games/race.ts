@@ -118,7 +118,7 @@ export const race: GameDef = {
         timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1600 * pace.result)
       }
       if (done) {
-        const msg = mode === 'single' ? `🏆 ${ctx.order[0].name} !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${ctx.order[0].name} !` : 'Ordre déterminé !'
         drawName(c, msg, w / 2, 32, 26, '#fbbf24')
       }
     })

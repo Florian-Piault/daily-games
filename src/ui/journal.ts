@@ -12,6 +12,7 @@ import {
 } from 'chart.js'
 import { colorFor } from '../avatars'
 import { GAMES } from '../games'
+import { icon, ArrowLeft, BookOpen } from '../icons'
 import type { SavedState } from '../state'
 import { escapeHtml } from './esc'
 
@@ -71,8 +72,8 @@ export function renderJournal(app: HTMLElement, opts: JournalOpts): void {
   app.innerHTML = `
   <div class="screen result">
     <header class="topbar">
-      <button class="btn icon" id="home" title="Accueil">←</button>
-      <h1>📖 Journal du daily</h1>
+      <button class="btn icon" id="home" title="Accueil">${icon(ArrowLeft)}</button>
+      <h1>${icon(BookOpen)} Journal du daily</h1>
       <span class="topbar-spacer"></span>
     </header>
     <main class="journal-main">

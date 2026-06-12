@@ -231,7 +231,7 @@ export const plinko: GameDef = {
         timer = window.setTimeout(() => ctx.onFinish(final), 1700 * ctx.pace.result)
       }
       if (done) {
-        const msg = mode === 'single' ? `🏆 ${winnerLabel} !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${winnerLabel} !` : 'Ordre déterminé !'
         drawName(c, msg, (w - panelW) / 2, 28, 24, '#fbbf24')
       }
     })

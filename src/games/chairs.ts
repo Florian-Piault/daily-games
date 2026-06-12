@@ -172,7 +172,7 @@ export const chairs: GameDef = {
       // chaises (en phase finale, il ne reste que celle du gagnant)
       for (let j = 0; j < chairCount() + (phase === 'win' ? 1 : 0); j++) {
         const cp = pos(chairAng(j), 0.55)
-        drawName(c, '🪑', cp.x, cp.y, Math.max(20, pr * 1.2))
+        drawName(c, '■', cp.x, cp.y, Math.max(20, pr * 1.2))
       }
 
       // joueurs
@@ -202,7 +202,7 @@ export const chairs: GameDef = {
       if (done) {
         const winner = players.find((pl) => pl.alive)!
         const wp = pos(winner.ang, winner.radF)
-        drawName(c, '👑', wp.x, wp.y - pr - 40, 30)
+        drawName(c, '★', wp.x, wp.y - pr - 40, 30)
         const msg =
           mode === 'single' ? `${winner.p.name} est tiré·e au sort !` : `${winner.p.name} parlera en premier !`
         drawName(c, msg, cx, h - 30, 24, '#fbbf24')

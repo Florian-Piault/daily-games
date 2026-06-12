@@ -225,7 +225,7 @@ export const potato: GameDef = {
       if (done) {
         const winner = players.find((pl) => pl.alive)!
         const wp = pos(players.indexOf(winner))
-        drawName(c, '👑', wp.x, wp.y - pr - 34, 30)
+        drawName(c, '★', wp.x, wp.y - pr - 34, 30)
         const msg =
           mode === 'single' ? `${winner.p.name} est tiré·e au sort !` : `${winner.p.name} parlera en premier !`
         drawName(c, msg, cx, h - 30, 24, '#fbbf24')

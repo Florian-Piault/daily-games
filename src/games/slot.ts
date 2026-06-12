@@ -152,7 +152,7 @@ export const slot: GameDef = {
 
       if (done) {
         const msg =
-          mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'
+          mode === 'single' ? `${ctx.order[0].name} est tiré·e au sort !` : 'Ordre déterminé !'
         drawName(c, msg, areaW / 2, h - 40, 24, '#fbbf24')
       }
     })

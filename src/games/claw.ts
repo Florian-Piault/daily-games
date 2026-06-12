@@ -263,7 +263,7 @@ export const claw: GameDef = {
       confetti.step(c, dt)
 
       if (done) {
-        const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${ctx.order[0].name} est tiré·e au sort !` : 'Ordre déterminé !'
         drawName(c, msg, areaW / 2, 30, 24, '#fbbf24')
       }
     })

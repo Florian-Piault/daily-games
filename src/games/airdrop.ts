@@ -138,7 +138,7 @@ export const airdrop: GameDef = {
         timer = window.setTimeout(() => ctx.onFinish(ctx.order), 1600 * pace.result)
       }
       if (done) {
-        const msg = mode === 'single' ? `🎉 ${ctx.order[0].name} est tiré·e au sort !` : '🏁 Ordre déterminé !'
+        const msg = mode === 'single' ? `${ctx.order[0].name} est tiré·e au sort !` : 'Ordre déterminé !'
         drawName(c, msg, areaW / 2, 30, 24, '#fbbf24')
       }
     })

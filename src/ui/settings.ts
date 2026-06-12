@@ -1,3 +1,16 @@
+import {
+  icon,
+  Flower2,
+  Ghost,
+  Leaf,
+  Moon,
+  Settings,
+  Snowflake,
+  Sun,
+  TreePine,
+  Waves,
+  X,
+} from '../icons'
 import { DEFAULT_PACE, saveState, type SavedState, type ThemeKey } from '../state'
 import type { Pace } from '../types'
 
@@ -28,14 +41,14 @@ const TIMEBOX_STEPS = [
 ]
 
 const THEMES: { key: ThemeKey; emoji: string; label: string }[] = [
-  { key: 'dark', emoji: '🌙', label: 'Foncé' },
-  { key: 'light', emoji: '☀️', label: 'Clair' },
-  { key: 'printemps', emoji: '🌸', label: 'Printemps' },
-  { key: 'ete', emoji: '🏖️', label: 'Été' },
-  { key: 'automne', emoji: '🍂', label: 'Automne' },
-  { key: 'hiver', emoji: '❄️', label: 'Hiver' },
-  { key: 'noel', emoji: '🎄', label: 'Noël' },
-  { key: 'halloween', emoji: '🎃', label: 'Halloween' },
+  { key: 'dark', emoji: icon(Moon, 20), label: 'Foncé' },
+  { key: 'light', emoji: icon(Sun, 20), label: 'Clair' },
+  { key: 'printemps', emoji: icon(Flower2, 20), label: 'Printemps' },
+  { key: 'ete', emoji: icon(Waves, 20), label: 'Été' },
+  { key: 'automne', emoji: icon(Leaf, 20), label: 'Automne' },
+  { key: 'hiver', emoji: icon(Snowflake, 20), label: 'Hiver' },
+  { key: 'noel', emoji: icon(TreePine, 20), label: 'Noël' },
+  { key: 'halloween', emoji: icon(Ghost, 20), label: 'Halloween' },
 ]
 
 export function applyTheme(theme: ThemeKey): void {
@@ -49,8 +62,8 @@ export function openSettings(saved: SavedState): void {
   overlay.innerHTML = `
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
     <header class="modal-head">
-      <h2 id="settings-title">⚙️ Réglages</h2>
-      <button class="btn icon" id="settings-close" title="Fermer">✕</button>
+      <h2 id="settings-title">${icon(Settings)} Réglages</h2>
+      <button class="btn icon" id="settings-close" title="Fermer">${icon(X)}</button>
     </header>
     <div class="setting-label">
       <span>Thème</span>
