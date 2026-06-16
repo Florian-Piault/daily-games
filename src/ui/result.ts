@@ -22,15 +22,19 @@ function fmtTime(s: number): string {
 export interface OrderResultOpts {
   order: Participant[]
   timeboxSec: number
+  /** Personnes déjà passées à la reprise d'un daily en cours. */
+  initialDone?: number[]
   onTimeUp?: () => void
   onSpeakTime?: (name: string, seconds: number) => void
+  /** Notifié à chaque changement de coche, avec les index passés et si tout le monde est passé. */
+  onProgress?: (done: number[], complete: boolean) => void
   onReplay: () => void
   onHome: () => void
 }
 
 /** Écran persistant : l'ordre reste affiché pendant tout le daily, on coche au fil de l'eau. */
 export function renderOrderResult(app: HTMLElement, opts: OrderResultOpts): void {
-  const done = new Set<number>()
+  const done = new Set<number>(opts.initialDone ?? [])
   let timerStart = performance.now()
   let lastNext = -2
   let overNotified = false
@@ -107,6 +111,7 @@ export function renderOrderResult(app: HTMLElement, opts: OrderResultOpts): void
         const i = Number(row.dataset.i)
         if (done.has(i)) done.delete(i)
         else done.add(i)
+        opts.onProgress?.([...done], opts.order.every((_, j) => done.has(j)))
         render()
       })
     })

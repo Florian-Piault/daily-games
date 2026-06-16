@@ -1,11 +1,22 @@
 import './style.css'
 import type { DrawMode, GameDef, Participant } from './types'
-import { loadState, recordDraw, recordSpeakTime, saveState, todayKey } from './state'
+import {
+  clearSession,
+  loadState,
+  recordDraw,
+  recordSpeakTime,
+  saveSession,
+  saveState,
+  todayKey,
+  type ActiveSession,
+} from './state'
 import { Sfx } from './audio'
 import { avatarFor, colorFor, initAvatarVariants } from './avatars'
 import { computeOrder } from './draw'
+import { GAMES } from './games'
 import { readPalette } from './games/palette'
 import { icon, ArrowLeft, Volume2, VolumeX } from './icons'
+import { confirmOverwriteDraw } from './ui/confirm'
 import { wireFullscreenButton } from './ui/fullscreen'
 import { renderHome } from './ui/home'
 import { renderJournal } from './ui/journal'
@@ -20,6 +31,8 @@ const sfx = new Sfx(saved.muted)
 
 let cleanupGame: (() => void) | null = null
 let singleRun: { game: GameDef; present: string[]; drawn: Participant[] } | null = null
+/** Daily en cours en mémoire, miroir de saved.session ; null entre deux tirages. */
+let session: ActiveSession | null = null
 
 function stopGame(): void {
   if (cleanupGame) {
@@ -67,8 +80,66 @@ function onLaunch(game: GameDef, present: string[], mode: DrawMode): void {
   saved.mode = mode
   saved.lastGame = game.id
   saveState(saved)
+  // nouveau cycle : la session sera (re)créée à l'affichage du résultat, journal « pending »
+  session = null
   singleRun = mode === 'single' ? { game, present, drawn: [] } : null
   void runGame(game, present, mode)
+}
+
+/**
+ * Enregistre le tirage au journal selon le sort décidé pour la session.
+ * À la fin d'un nouveau tirage alors qu'une entrée du jour existe déjà (session
+ * précédente), demande s'il faut écraser la sauvegarde du jour.
+ */
+function maybeRecord(game: GameDef, orderNames: string[]): void {
+  const s = session
+  if (!s || s.journal === 'declined') return
+  if (s.journal === 'recorded') {
+    recordDraw(saved, game.id, orderNames)
+    return
+  }
+  // pending : première écriture de cette session
+  if (!saved.history.some((e) => e.date === todayKey())) {
+    recordDraw(saved, game.id, orderNames)
+    s.journal = 'recorded'
+    saveSession(saved, s)
+    return
+  }
+  confirmOverwriteDraw({
+    onReplace: () => {
+      recordDraw(saved, game.id, orderNames)
+      s.journal = 'recorded'
+      saveSession(saved, s)
+    },
+    onKeep: () => {
+      s.journal = 'declined'
+      saveSession(saved, s)
+    },
+  })
+}
+
+/** Affiche l'écran de passage « Ordre complet » et persiste la progression des coches. */
+function renderOrderScreen(
+  game: GameDef,
+  names: string[],
+  order: Participant[],
+  initialDone: number[],
+): void {
+  renderOrderResult(app, {
+    order,
+    timeboxSec: saved.timeboxSec,
+    initialDone,
+    onTimeUp: () => sfx.timeUp(),
+    onSpeakTime: (name, sec) => recordSpeakTime(saved, name, sec),
+    onProgress: (doneIdx, complete) => {
+      if (!session) return
+      session.done = doneIdx
+      if (complete) clearSession(saved)
+      else saveSession(saved, session)
+    },
+    onReplay: () => void runGame(game, names, 'order'),
+    onHome: showHome,
+  })
 }
 
 async function runGame(
@@ -127,25 +198,43 @@ function onGameFinish(game: GameDef, names: string[], mode: DrawMode, finalOrder
   // anti-répétition : on mémorise le « premier » du jour (pas les tirages suivants du mode une-personne)
   if (mode === 'order' || singleRun!.drawn.length === 0) recordFirst(finalOrder[0].name)
   if (mode === 'order') {
-    recordDraw(saved, game.id, finalOrder.map((p) => p.name))
-    renderOrderResult(app, {
-      order: finalOrder,
-      timeboxSec: saved.timeboxSec,
-      onTimeUp: () => sfx.timeUp(),
-      onSpeakTime: (name, sec) => recordSpeakTime(saved, name, sec),
-      onReplay: () => void runGame(game, names, 'order'),
-      onHome: showHome,
-    })
+    const orderNames = finalOrder.map((p) => p.name)
+    session = {
+      date: todayKey(),
+      game: game.id,
+      mode,
+      journal: session?.journal ?? 'pending',
+      order: orderNames,
+      done: [],
+      drawn: [],
+      present: [],
+    }
+    saveSession(saved, session)
+    renderOrderScreen(game, names, finalOrder, [])
+    maybeRecord(game, orderNames)
   } else {
     singleRun!.drawn.push(finalOrder[0])
     showSingleResult()
+    maybeRecord(singleRun!.game, singleRun!.drawn.map((p) => p.name))
   }
 }
 
 function showSingleResult(): void {
   const run = singleRun!
   const remaining = run.present.filter((n) => !run.drawn.some((d) => d.name === n))
-  recordDraw(saved, run.game.id, run.drawn.map((p) => p.name))
+  // persiste l'état du daily « Une personne » pour pouvoir le reprendre (sans toucher au journal)
+  session = {
+    date: todayKey(),
+    game: run.game.id,
+    mode: 'single',
+    journal: session?.journal ?? 'pending',
+    order: [],
+    done: [],
+    drawn: run.drawn.map((p) => p.name),
+    present: run.present,
+  }
+  if (remaining.length === 0) clearSession(saved)
+  else saveSession(saved, session)
   renderSingleResult(app, {
     drawn: run.drawn,
     remaining: remaining.length,
@@ -157,6 +246,7 @@ function showSingleResult(): void {
         // plus de suspense nécessaire : la dernière personne passe d'office
         run.drawn.push((await toParticipants(remaining))[0])
         showSingleResult()
+        maybeRecord(run.game, run.drawn.map((p) => p.name))
       } else {
         void runGame(run.game, remaining, 'single', false)
       }
@@ -165,4 +255,33 @@ function showSingleResult(): void {
   })
 }
 
-showHome()
+/** true tant que tout le monde n'est pas passé (session reprenable). */
+function isIncomplete(s: ActiveSession): boolean {
+  return s.mode === 'order' ? s.done.length < s.order.length : s.drawn.length < s.present.length
+}
+
+/** Reprend un daily en cours à la réouverture : on rouvre directement l'écran de passage. */
+async function resumeSession(s: ActiveSession): Promise<void> {
+  session = s
+  const game = GAMES.find((g) => g.id === s.game)
+  if (!game) return showHome()
+  if (s.mode === 'order') {
+    const order = await toParticipants(s.order)
+    renderOrderScreen(game, s.order, order, s.done)
+  } else {
+    singleRun = { game, present: s.present, drawn: await toParticipants(s.drawn) }
+    showSingleResult()
+  }
+}
+
+function boot(): void {
+  const s = saved.session
+  if (s && s.date === todayKey() && isIncomplete(s)) {
+    void resumeSession(s)
+  } else {
+    if (s) clearSession(saved) // session terminée ou périmée → on nettoie
+    showHome()
+  }
+}
+
+boot()

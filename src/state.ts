@@ -21,6 +21,21 @@ export interface HistoryEntry {
   speak?: Record<string, number>
 }
 
+/** Daily en cours, persisté pour pouvoir le reprendre si la fenêtre se ferme avant que tout le monde soit passé. */
+export interface ActiveSession {
+  date: string
+  game: string
+  mode: DrawMode
+  /** Sort de l'entrée du journal pour CETTE session : à décider, enregistrée, ou refusée (on garde l'ancienne). */
+  journal: 'pending' | 'recorded' | 'declined'
+  /** Mode « Ordre complet » : ordre de passage (noms) + index des personnes déjà passées. */
+  order: string[]
+  done: number[]
+  /** Mode « Une personne » : noms déjà tirés (dans l'ordre) + vivier des présents de la session. */
+  drawn: string[]
+  present: string[]
+}
+
 export interface SavedState {
   members: string[]
   present: Record<string, boolean>
@@ -41,6 +56,8 @@ export interface SavedState {
   /** Effets de suspense activés (roue / machine à sous). */
   suspense: SuspenseConfig
   history: HistoryEntry[]
+  /** Daily en cours à reprendre (null = aucun). */
+  session: ActiveSession | null
 }
 
 const KEY = 'daily-games-v1'
@@ -66,6 +83,7 @@ export function loadState(): SavedState {
     stagePrefs: {},
     suspense: { ...DEFAULT_SUSPENSE },
     history: [],
+    session: null,
   }
   try {
     const raw = localStorage.getItem(KEY)
@@ -123,6 +141,18 @@ export function recordDraw(s: SavedState, game: string, order: string[]): void {
   s.history = s.history.filter((e) => e.date !== date)
   s.history.push({ date, game, order: [...order], ...(prev?.speak ? { speak: prev.speak } : {}) })
   if (s.history.length > HISTORY_MAX) s.history = s.history.slice(-HISTORY_MAX)
+  saveState(s)
+}
+
+/** Persiste le daily en cours pour pouvoir le reprendre à la réouverture. */
+export function saveSession(s: SavedState, session: ActiveSession): void {
+  s.session = session
+  saveState(s)
+}
+
+/** Efface le daily en cours (terminé ou abandonné). */
+export function clearSession(s: SavedState): void {
+  s.session = null
   saveState(s)
 }
 
